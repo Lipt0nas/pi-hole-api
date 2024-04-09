@@ -72,15 +72,6 @@ impl PiHoleAPIKey for PiHoleAPIConfigWithKey {
 }
 
 pub trait UnauthenticatedPiHoleAPI {
-    /// Get statistics in a raw format (no number format)
-    fn get_summary_raw(&self) -> Result<SummaryRaw, errors::APIError>;
-
-    /// Get statistics in a formatted style
-    fn get_summary(&self) -> Result<Summary, errors::APIError>;
-
-    /// Get statistics on the number of domains and ads for each 10 minute period
-    fn get_over_time_data_10_mins(&self) -> Result<OverTimeData, errors::APIError>;
-
     /// Get the Pi-Hole version.
     fn get_version(&self) -> Result<u32, errors::APIError>;
 
@@ -115,22 +106,6 @@ impl<T> UnauthenticatedPiHoleAPI for T
 where
     T: PiHoleAPIHost,
 {
-    fn get_summary_raw(&self) -> Result<SummaryRaw, errors::APIError> {
-        simple_json_request(self.get_host(), "/admin/api.php?summaryRaw", &NO_PARAMS)
-    }
-
-    fn get_summary(&self) -> Result<Summary, errors::APIError> {
-        simple_json_request(self.get_host(), "/admin/api.php?summary", &NO_PARAMS)
-    }
-
-    fn get_over_time_data_10_mins(&self) -> Result<OverTimeData, errors::APIError> {
-        simple_json_request(
-            self.get_host(),
-            "/admin/api.php?overTimeData10mins",
-            &NO_PARAMS,
-        )
-    }
-
     /// Get simple PiHole version
     fn get_version(&self) -> Result<u32, errors::APIError> {
         let raw_version: Version =
@@ -250,6 +225,15 @@ pub trait AuthenticatedPiHoleAPI {
 
     /// Get max logage
     fn get_max_logage(&self) -> Result<f32, errors::APIError>;
+
+    /// Get statistics in a raw format (no number format)
+    fn get_summary_raw(&self) -> Result<SummaryRaw, errors::APIError>;
+
+    /// Get statistics in a formatted style
+    fn get_summary(&self) -> Result<Summary, errors::APIError>;
+
+    /// Get statistics on the number of domains and ads for each 10 minute period
+    fn get_over_time_data_10_mins(&self) -> Result<OverTimeData, errors::APIError>;
 }
 
 fn authenticated_json_request<'a, T, I, K, V>(
@@ -580,5 +564,32 @@ where
             self.get_api_key(),
         )?;
         Ok(raw_data.remove("maxlogage").unwrap())
+    }
+
+    fn get_summary_raw(&self) -> Result<SummaryRaw, errors::APIError> {
+        authenticated_json_request(
+            self.get_host(),
+            "/admin/api.php",
+            [("summaryRaw", "")],
+            self.get_api_key(),
+        )
+    }
+
+    fn get_summary(&self) -> Result<Summary, errors::APIError> {
+        authenticated_json_request(
+            self.get_host(),
+            "/admin/api.php",
+            [("summary", "")],
+            self.get_api_key(),
+        )
+    }
+
+    fn get_over_time_data_10_mins(&self) -> Result<OverTimeData, errors::APIError> {
+        authenticated_json_request(
+            self.get_host(),
+            "/admin/api.php",
+            [("overTimeData10mins", "")],
+            self.get_api_key(),
+        )
     }
 }
