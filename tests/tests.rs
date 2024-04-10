@@ -80,7 +80,7 @@ impl TestContext for PiHoleTestContext {
 #[test]
 #[serial]
 fn get_summary_raw_test(ctx: &mut PiHoleTestContext) {
-    let summary_raw = ctx.unauthenticated_api.get_summary_raw().unwrap();
+    let summary_raw = ctx.authenticated_api.get_summary_raw().unwrap();
     assert!(
         summary_raw.status == "enabled" || summary_raw.status == "disabled",
         "Pi-Hole is neither enabled nor disabled"
@@ -91,7 +91,7 @@ fn get_summary_raw_test(ctx: &mut PiHoleTestContext) {
 #[test]
 #[serial]
 fn get_summary_test(ctx: &mut PiHoleTestContext) {
-    let summary = ctx.unauthenticated_api.get_summary().unwrap();
+    let summary = ctx.authenticated_api.get_summary().unwrap();
     assert!(
         summary.status == "enabled" || summary.status == "disabled",
         "Pi-Hole is neither enabled nor disabled"
@@ -103,9 +103,7 @@ fn get_summary_test(ctx: &mut PiHoleTestContext) {
 #[serial]
 fn get_over_time_data_10_mins_test(ctx: &mut PiHoleTestContext) {
     // Takes a while to update so performing a request will not immediately increase the counter
-    ctx.unauthenticated_api
-        .get_over_time_data_10_mins()
-        .unwrap();
+    ctx.authenticated_api.get_over_time_data_10_mins().unwrap();
 }
 
 #[test_context(PiHoleTestContext)]
